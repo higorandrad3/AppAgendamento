@@ -1,0 +1,25 @@
+﻿@model MunicipiosViewModel
+
+@{
+    ViewData["Title"] = "Editar Município";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Editar Município</h2>
+    <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+</div>
+
+<hr />
+
+<form asp-action="Edit" method="post">
+
+    <!-- Hidden para enviar o Id corretamente -->
+    <input type="hidden" asp-for="Id" />
+
+    <partial name="_Form" />
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

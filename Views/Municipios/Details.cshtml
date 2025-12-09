@@ -1,0 +1,32 @@
+﻿@model MunicipiosViewModel
+
+@{
+    ViewData["Title"] = "Detalhes do Município";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Detalhes do Município</h2>
+    <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+</div>
+
+<hr />
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <dl class="row">
+
+            <dt class="col-sm-4">Nome</dt>
+            <dd class="col-sm-8">@Model.Nome</dd>
+
+        </dl>
+
+    </div>
+</div>
+
+<!-- Ações -->
+<div class="mt-4">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary px-4">Editar</a>
+    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger ms-2 px-4">Excluir</a>
+    <a asp-action="Index" class="btn btn-secondary ms-2 px-4">Voltar</a>
+</div>

@@ -1,0 +1,81 @@
+﻿@model AgendamentoViewModel
+
+@{
+    ViewData["Title"] = "Detalhes do Agendamento";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Detalhes do Agendamento</h2>
+    <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+</div>
+
+<hr />
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <dl class="row">
+
+            <dt class="col-sm-4">Nome</dt>
+            <dd class="col-sm-8">@Model.Nome</dd>
+
+            <dt class="col-sm-4">Representante do Município</dt>
+            <dd class="col-sm-8">@Model.NomeRepresentanteMunicipio</dd>
+
+            <dt class="col-sm-4">Município</dt>
+            <dd class="col-sm-8">@Model.Municipio</dd>
+
+            <dt class="col-sm-4">Informado a</dt>
+            <dd class="col-sm-8">@Model.InformadoA</dd>
+
+            <dt class="col-sm-4">Destino</dt>
+            <dd class="col-sm-8">@Model.Destino</dd>
+
+            <dt class="col-sm-4">Horário Agendado</dt>
+            <dd class="col-sm-8">@Model.Agendado</dd>
+
+            <dt class="col-sm-4">Entrada</dt>
+            <dd class="col-sm-8">@Model.Entrada</dd>
+
+            <dt class="col-sm-4">Horário de Atendimento</dt>
+            <dd class="col-sm-8">@Model.HorarioAtendimento</dd>
+
+            <dt class="col-sm-4">Situação</dt>
+            <dd class="col-sm-8">
+                @{
+                    string badgeClass = Model.Situacao switch
+                    {
+                        "NoHorario" => "bg-success",
+                        "Atrasado" => "bg-danger",
+                        _ => "bg-warning text-dark"
+                    };
+                }
+                <span class="badge @badgeClass px-3 py-2 fs-6">@Model.Situacao</span>
+            </dd>
+
+            <dt class="col-sm-4">Telefone</dt>
+            <dd class="col-sm-8">@Model.Telefone</dd>
+
+            <dt class="col-sm-4">Tipo Documento</dt>
+            <dd class="col-sm-8">@Model.TipoDocumento</dd>
+
+            <dt class="col-sm-4">Número Documento</dt>
+            <dd class="col-sm-8">@Model.NumeroDocumento</dd>
+
+            <dt class="col-sm-4">Placa do Veículo</dt>
+            <dd class="col-sm-8">@Model.PlacaVeiculo</dd>
+
+            <dt class="col-sm-4">Autorizado por</dt>
+            <dd class="col-sm-8">@Model.AutorizadoPor</dd>
+
+        </dl>
+
+    </div>
+</div>
+
+<!-- Ações -->
+<div class="mt-4">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary px-4">Editar</a>
+    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger ms-2 px-4">Excluir</a>
+    <a asp-action="Index" class="btn btn-secondary ms-2 px-4">Voltar</a>
+</div>

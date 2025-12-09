@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - Sistema de Agendamentos</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Site CSS opcional -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+</head>
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+    <nav> <partial name="_Navbar"/></nav>
+    <!-- ================= FIM NAVBAR ================= -->
+    <!-- ================= CONTEÚDO PRINCIPAL ================= -->
+    <div class="container mt-4">
+
+        <main role="main" class="pb-4">
+            @RenderBody()
+        </main>
+
+    </div>
+    <!-- ================= FIM CONTEÚDO PRINCIPAL ================= -->
+    <!-- ================= FOOTER ================= -->
+    <footer><partial name="_Footer" /></footer>
+    <!-- ================= FIM FOOTER ================= -->
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Scripts das Views -->
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

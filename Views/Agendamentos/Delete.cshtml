@@ -1,0 +1,68 @@
+﻿@model AgendamentoViewModel
+
+@{
+    ViewData["Title"] = "Excluir Agendamento";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0 text-danger">Excluir Agendamento</h2>
+    <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+</div>
+
+<div class="alert alert-danger">
+    Tem certeza de que deseja excluir este agendamento?
+    <strong>Essa ação não poderá ser desfeita.</strong>
+</div>
+
+<hr />
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <dl class="row">
+
+            <dt class="col-sm-3">Nome</dt>
+            <dd class="col-sm-9">@Model.Nome</dd>
+
+            <dt class="col-sm-3">Representante</dt>
+            <dd class="col-sm-9">@Model.NomeRepresentanteMunicipio</dd>
+
+            <dt class="col-sm-3">Município</dt>
+            <dd class="col-sm-9">@Model.Municipio</dd>
+
+            <dt class="col-sm-3">Destino</dt>
+            <dd class="col-sm-9">@Model.Destino</dd>
+
+            <dt class="col-sm-3">Agendado</dt>
+            <dd class="col-sm-9">@Model.Agendado</dd>
+
+            <dt class="col-sm-3">Entrada</dt>
+            <dd class="col-sm-9">@Model.Entrada</dd>
+
+            <dt class="col-sm-3">Atendimento</dt>
+            <dd class="col-sm-9">@Model.HorarioAtendimento</dd>
+
+            <dt class="col-sm-3">Telefone</dt>
+            <dd class="col-sm-9">@Model.Telefone</dd>
+
+            <dt class="col-sm-3">Placa</dt>
+            <dd class="col-sm-9">@Model.PlacaVeiculo</dd>
+
+            <dt class="col-sm-3">Documento</dt>
+            <dd class="col-sm-9">@Model.TipoDocumento — @Model.NumeroDocumento</dd>
+
+            <dt class="col-sm-3">Autorizado por</dt>
+            <dd class="col-sm-9">@Model.AutorizadoPor</dd>
+
+        </dl>
+
+    </div>
+</div>
+
+<form asp-action="DeleteConfirmed" method="post" class="mt-4">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger px-4">
+        Confirmar Exclusão
+    </button>
+    <a asp-action="Index" class="btn btn-secondary ms-2 px-4">Cancelar</a>
+</form>

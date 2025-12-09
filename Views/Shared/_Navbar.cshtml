@@ -1,0 +1,40 @@
+﻿@* Navbar padrão do sistema *@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+
+        <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+            🗓️ Agendamentos
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMenu">
+
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Agendamentos" asp-action="Index">
+                        Agendamentos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Municipios" asp-action="Index">
+                        Municípios
+                    </a>
+                </li>
+
+                @* Menu futuro 
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Municipios" asp-action="Index">
+                        Municípios
+                    </a>
+                </li>
+                *@
+
+            </ul>
+
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,145 @@
+﻿@model IEnumerable<AgendamentoViewModel>
+
+@{
+    ViewData["Title"] = "Agendamentos";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Agendamentos</h2>
+    <a class="btn btn-primary" asp-action="Create">Novo Agendamento</a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">🔍 Filtros de Agendamentos</h5>
+
+        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filtros">
+            Mostrar / Ocultar
+        </button>
+    </div>
+
+    <div id="filtros" class="collapse show">
+        <div class="card-body">
+
+            <form asp-action="Index" method="get" class="row g-3">
+
+                <!-- Nome -->
+                <div class="col-md-4">
+                    <label class="form-label">Nome</label>
+                    <input name="Nome" value="" class="form-control" />
+                </div>
+
+                <!-- Município -->
+                <div class="col-md-4">
+                    <label class="form-label">Município</label>
+                    <select name="Municipio" class="form-select">
+                        <option value="">Todos...</option>
+                        
+                    </select>
+                </div>
+
+                <!-- Situação -->
+                <div class="col-md-4">
+                    <label class="form-label">Situação</label>
+                    <select name="Situacao" class="form-select">
+                        <option value="">Todas...</option>
+                        <option value="NoHorario" >No horário</option>
+                        <option value="Atrasado" >Atrasado</option>
+                        <option value="Pendencia" >Pendência</option>
+                    </select>
+                </div>
+
+                <!-- Agendado -->
+                <div class="col-md-3">
+                    <label class="form-label">Agendado (início)</label>
+                    <input type="time" name="AgendadoInicio" value="" class="form-control" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Agendado (fim)</label>
+                    <input type="time" name="AgendadoFim" value="" class="form-control" />
+                </div>
+
+                <!-- Entrada -->
+                <div class="col-md-3">
+                    <label class="form-label">Entrada (início)</label>
+                    <input type="time" name="EntradaInicio" value="" class="form-control" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Entrada (fim)</label>
+                    <input type="time" name="EntradaFim" value="" class="form-control" />
+                </div>
+
+                <!-- Destino -->
+                <div class="col-md-4">
+                    <label class="form-label">Destino</label>
+                    <input name="Destino" value="Destino" class="form-control" />
+                </div>
+
+                <!-- Botões -->
+                <div class="col-12 mt-3">
+                    <button type="submit" class="btn btn-primary px-4">Filtrar</button>
+                    <a asp-action="Index" class="btn btn-secondary ms-2 px-4">Limpar</a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Município</th>
+            <th>Agendado</th>
+            <th>Entrada</th>
+            <th>Situação</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Reverse())
+        {
+            string badgeClass = item.Situacao switch
+            {
+                "NoHorario" => "bg-success",
+                "Atrasado" => "bg-danger",
+                _ => "bg-warning text-dark"
+            };
+
+            <tr>
+                <td>@item.Nome</td>
+                <td>@item.Municipio</td>
+                <td>@item.Agendado</td>
+                <td>@item.Entrada</td>
+                <td>
+                    <span class="badge @badgeClass">@item.Situacao</span>
+                </td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-secondary" asp-action="Edit" asp-route-id="@item.Id">Editar</a>
+                    <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@item.Id">Detalhes</a>
+                    <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.Id">Deletar</a>
+                    @* <form asp-action="Delete" asp-route-id="@item" method="post" class="d-inline">
+                        <button class="btn btn-sm btn-danger" type="submit">Deletar</button>
+                    </form> *@
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
