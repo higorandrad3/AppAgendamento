@@ -1,7 +1,9 @@
 ﻿using AgendamentoApp.Context;
-using AgendamentoApp.Enums;
+using AgendamentoApp.Extensions;
 using AgendamentoApp.Models;
 using AgendamentoApp.Services.Interfaces;
+using AgendamentoApp.ViewModel;
+using Microsoft.EntityFrameworkCore;
 
 namespace AgendamentoApp.Services
 {
@@ -13,24 +15,18 @@ namespace AgendamentoApp.Services
         {
             _context = context;
         }
-        public SituacaoAgendamento VerificarSituacao(Agendamento agendamento)
+        public async Task<Agendamento> CriarAgendamentoAsync(AgendamentoViewModel agendamentoVM)
         {
-            if (agendamento.HorarioAtendimento == null)
-                return SituacaoAgendamento.Pendente;
+            var existeAgendamento = await _context.Agendamentos.AnyAsync(a => a.Agendado == agendamentoVM.Agendado);
 
-            if (agendamento.Entrada.HasValue && agendamento.Entrada.Value > agendamento.Agendado)
-                return SituacaoAgendamento.Atrasado;
+            if (existeAgendamento)
+                throw new ArgumentException("Já existe um agendamento para este horário. Tente outro horário.");
 
-            else
-                return SituacaoAgendamento.NoHorario;
-        }
+            var agendamento = agendamentoVM.ToEntity();
 
-        public SituacaoAgendamento VerificarSituacao(TimeSpan? entrada, TimeSpan agendado)
-        {
-            if (entrada == null)
-                return SituacaoAgendamento.Pendente;
+            agendamento.DefinirSituacao();
 
-            return entrada <= agendado ? SituacaoAgendamento.NoHorario : SituacaoAgendamento.Atrasado;
+            return agendamento;
         }
     }
 }

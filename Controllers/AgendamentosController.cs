@@ -2,6 +2,7 @@
 using AgendamentoApp.Extensions;
 using AgendamentoApp.Models;
 using AgendamentoApp.Services;
+using AgendamentoApp.Services.Interfaces;
 using AgendamentoApp.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,11 +15,13 @@ namespace AgendamentoApp.Controllers
     {
         private readonly AppDbContext _context;
         private readonly ILogger<AgendamentosController> _logger;
+        private readonly IAgendamentoService _service;
 
-        public AgendamentosController(AppDbContext context, ILogger<AgendamentosController> logger)
+        public AgendamentosController(AppDbContext context, ILogger<AgendamentosController> logger, IAgendamentoService service)
         {
             _context = context;
             _logger = logger;
+            _service = service;
         }
 
         public async Task<IActionResult> Index()
@@ -59,47 +62,34 @@ namespace AgendamentoApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AgendamentoViewModel agendamentoVM)
         {
+            if (!ModelState.IsValid)
+            {
+                agendamentoVM.Municipios = _context.Municipios
+                    .Select(m => new SelectListItem()
+                    {
+                        Value = m.Id.ToString(),
+                        Text = m.Nome,
+                    })
+                    .ToList();
+
+                return View(agendamentoVM);
+            }
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    agendamentoVM.Municipios = _context.Municipios
-                        .Select(m => new SelectListItem()
-                        {
-                            Value = m.Id.ToString(),
-                            Text = m.Nome,
-                        })
-                        .ToList();
+                var agendamento = await _service.CriarAgendamentoAsync(agendamentoVM);
 
-                    return View(agendamentoVM);
-                }
-
-                var existeAgendamento = await _context.Agendamentos.AnyAsync(a => a.Agendado == agendamentoVM.Agendado);
-
-                if (existeAgendamento)
-                {
-                    ModelState.AddModelError(nameof(agendamentoVM.Agendado), "Já existe um agendamento para este horário. Tente outro horário.");
-
-                    return View(agendamentoVM);
-                }
-                var agendamento = agendamentoVM.ToEntity();
-
-                agendamento.DefinirSituacao();
-
-                _context.Agendamentos.Add(agendamento);
+                await _context.Agendamentos.AddAsync(agendamento);
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Agendamento criado com sucesso!";
 
                 return RedirectToAction("Index");
             }
-            catch (Exception ex)
+            catch (ArgumentException ex)
             {
-                _logger.LogError(ex, "Erro ao criar o agendamento.");
+                ModelState.AddModelError(nameof(Agendamento.Agendado), ex.Message);
 
-                TempData["ErrorMessage"] = "Não foi possível criar o agendamento";
-
-                return RedirectToAction("Index");
+                return View(agendamentoVM);
             }
         }
 
