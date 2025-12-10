@@ -28,11 +28,9 @@ namespace AgendamentoApp.Controllers
         {
             try
             {
-                var agendamentos = _context.Agendamentos.Include(m => m.Municipio);
+                var agendamentoVM = await _service.ListarTodosAsync();
 
-                var agendamentosVM = await agendamentos.Select(a => a.ToViewModel()).ToListAsync();
-
-                return View(agendamentosVM);
+                return View(agendamentoVM);
             }
             catch (Exception ex)
             {

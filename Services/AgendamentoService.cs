@@ -15,6 +15,14 @@ namespace AgendamentoApp.Services
         {
             _context = context;
         }
+        public async Task<List<AgendamentoViewModel>> ListarTodosAsync()
+        {
+            var agendamentos = _context.Agendamentos.Include(m => m.Municipio);
+
+            var agendamentosVM = await agendamentos.Select(a => a.ToViewModel()).ToListAsync();
+
+            return agendamentosVM;
+        }
         public async Task<Agendamento> CriarAgendamentoAsync(AgendamentoViewModel agendamentoVM)
         {
             var existeAgendamento = await _context.Agendamentos.AnyAsync(a => a.Agendado == agendamentoVM.Agendado);
