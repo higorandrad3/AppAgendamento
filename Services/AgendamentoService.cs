@@ -3,6 +3,7 @@ using AgendamentoApp.Extensions;
 using AgendamentoApp.Models;
 using AgendamentoApp.Services.Interfaces;
 using AgendamentoApp.ViewModel;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -16,26 +17,22 @@ namespace AgendamentoApp.Services
         {
             _context = context;
         }
-        public async Task<List<AgendamentoViewModel>> ListarTodosAsync()
+        public async Task<List<Agendamento>> ListarTodosAsync()
         {
-            var agendamentos = _context.Agendamentos.Include(m => m.Municipio);
+            var agendamentos = await _context.Agendamentos.Include(m => m.Municipio).ToListAsync();
 
-            var agendamentosVM = await agendamentos.Select(a => a.ToViewModel()).ToListAsync();
-
-            return agendamentosVM;
+            return agendamentos;
         }
-        public async Task CriarAgendamentoAsync(AgendamentoViewModel agendamentoVM)
+        public async Task CriarAgendamentoAsync(Agendamento agendamento)
         {
-            await VerificarHorarioAgendadoAsync(agendamentoVM);
-
-            var agendamento = agendamentoVM.ToEntity();
+            await VerificarHorarioAgendadoAsync(agendamento);
 
             agendamento.DefinirSituacao();
 
             await _context.Agendamentos.AddAsync(agendamento);
             await _context.SaveChangesAsync();
         }
-        public async Task DeletarAsync(int id)
+        public async Task ConfirmacaoDeletarAsync(int id)
         {
             var agendamento = await _context.Agendamentos.FindAsync(id);
 
@@ -45,21 +42,19 @@ namespace AgendamentoApp.Services
             _context.Agendamentos.Remove(agendamento);
             await _context.SaveChangesAsync();
         }
-        public async Task EditarAsync(AgendamentoViewModel agendamentoVM)
+        public async Task EditarAsync(Agendamento agendamento)
         {
-            await VerificarHorarioAgendadoAsync(agendamentoVM);
-
-            var agendamento = agendamentoVM.ToEntity();
+            await VerificarHorarioAgendadoAsync(agendamento);
 
             agendamento.DefinirSituacao();
 
             _context.Agendamentos.Update(agendamento);
             await _context.SaveChangesAsync();
         }
-        public async Task<AgendamentoViewModel> DetalhesAsync(int? id)
+        public async Task<Agendamento> DetalhesAsync(int? id)
         {
             if (id == null)
-                throw new NullReferenceException("ID invalido");
+                throw new ArgumentException("ID invalido");
 
             var agendamento = await _context.Agendamentos
                 .Include(a => a.Municipio)
@@ -68,17 +63,24 @@ namespace AgendamentoApp.Services
             if (agendamento == null)
                 throw new NullReferenceException("Agendamento não encontrado");
 
-            var agendamentoVM = agendamento.ToViewModel();
-
-            return agendamentoVM;
+            return agendamento;
         }
-        public async Task VerificarHorarioAgendadoAsync(AgendamentoViewModel agendamentoVM)
+        public async Task VerificarHorarioAgendadoAsync(Agendamento agendamento)
         {
-            var existeAgendamento = await _context.Agendamentos.AnyAsync(a => a.Agendado == agendamentoVM.Agendado && a.Id != agendamentoVM.Id);
+            var existeAgendamento = await _context.Agendamentos.AnyAsync(a => a.Agendado == agendamento.Agendado && a.Id != agendamento.Id);
 
             if (existeAgendamento)
                 throw new ArgumentException("Já existe um agendamento para este horário. Tente outro horário.");
         }
-        
+        public Task<List<SelectListItem>> ObterMunicipiosAsync()
+        {
+            return _context.Municipios
+                .Select(m => new SelectListItem()
+                {
+                    Value = m.Id.ToString(),
+                    Text = m.Nome
+                })
+                .ToListAsync();
+        }
     }
 }
