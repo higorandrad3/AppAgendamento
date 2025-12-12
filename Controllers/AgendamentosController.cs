@@ -1,7 +1,6 @@
 ﻿using AgendamentoApp.Context;
 using AgendamentoApp.Extensions;
 using AgendamentoApp.Models;
-using AgendamentoApp.Services;
 using AgendamentoApp.Services.Interfaces;
 using AgendamentoApp.ViewModel;
 using Microsoft.AspNetCore.Mvc;
@@ -74,10 +73,7 @@ namespace AgendamentoApp.Controllers
             }
             try
             {
-                var agendamento = await _service.CriarAgendamentoAsync(agendamentoVM);
-
-                await _context.Agendamentos.AddAsync(agendamento);
-                await _context.SaveChangesAsync();
+                await _service.CriarAgendamentoAsync(agendamentoVM);
 
                 TempData["SuccessMessage"] = "Agendamento criado com sucesso!";
 
@@ -86,6 +82,14 @@ namespace AgendamentoApp.Controllers
             catch (ArgumentException ex)
             {
                 ModelState.AddModelError(nameof(Agendamento.Agendado), ex.Message);
+
+                agendamentoVM.Municipios = _context.Municipios
+                    .Select(m => new SelectListItem()
+                    {
+                        Value = m.Id.ToString(),
+                        Text = m.Nome,
+                    })
+                    .ToList();
 
                 return View(agendamentoVM);
             }
@@ -114,17 +118,16 @@ namespace AgendamentoApp.Controllers
         {
             try
             {
-                var agendamento = await _context.Agendamentos.FindAsync(id);
-
-                if (agendamento == null)
-                    NotFound();
-
-                _context.Agendamentos.Remove(agendamento);
-                await _context.SaveChangesAsync();
+                await _service.DeletarAsync(id);
 
                 TempData["SuccessMessage"] = "Agendamento deletado com sucesso!";
 
                 return RedirectToAction(nameof(Index));
+            }
+            catch (NullReferenceException ex)
+            {
+                _logger.LogError(ex, "Agendamento não encontrado no banco de dados");
+                return NotFound();
             }
             catch (Exception ex)
             {
@@ -137,6 +140,7 @@ namespace AgendamentoApp.Controllers
 
         public async Task<IActionResult> Edit(int? id)
         {
+
             if (id == null)
                 return BadRequest("ID invalido");
 
@@ -159,6 +163,7 @@ namespace AgendamentoApp.Controllers
                 .ToListAsync();
 
             return View(agendamentoVM);
+
         }
 
         [HttpPost]
@@ -171,7 +176,7 @@ namespace AgendamentoApp.Controllers
             if (!ModelState.IsValid)
             {
                 agendamentoVM.Municipios = await _context.Municipios
-                    .Select(m => 
+                    .Select(m =>
                     new SelectListItem()
                     {
                         Value = m.Id.ToString(),
@@ -181,56 +186,51 @@ namespace AgendamentoApp.Controllers
 
                 return View(agendamentoVM);
             }
-
             try
             {
-                var existeAgendamento = await _context.Agendamentos.AnyAsync(a =>
-                a.Agendado == agendamentoVM.Agendado && a.Id != agendamentoVM.Id);
-
-                if (existeAgendamento)
-                {
-                    ModelState.AddModelError(nameof(agendamentoVM.Agendado), "Já existe um agendamento para este horário. Tente outro horário.");
-
-                    return View(agendamentoVM);
-                }
-
-
-                var agendamento = agendamentoVM.ToEntity();
-
-                agendamento.DefinirSituacao();
-
-                _context.Agendamentos.Update(agendamento);
-                await _context.SaveChangesAsync();
+                await _service.EditarAsync(agendamentoVM);
 
                 TempData["SuccessMessage"] = "Agendamento editado com sucesso!";
 
                 return RedirectToAction(nameof(Index));
             }
-            catch (DBConcurrencyException ex)
+            catch (ArgumentException ex)
             {
-                if (!_context.Agendamentos.Any(a => a.Id == agendamentoVM.Id))
-                    return NotFound();
+                ModelState.AddModelError(nameof(Agendamento.Agendado), ex.Message);
 
-                throw;
+                agendamentoVM.Municipios = await _context.Municipios
+                    .Select(m =>
+                    new SelectListItem()
+                    {
+                        Value = m.Id.ToString(),
+                        Text = m.Nome
+                    })
+                    .ToListAsync();
+
+                return View(agendamentoVM);
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Erro ao salvar no banco de dados");
+
+                agendamentoVM.Municipios = await _context.Municipios
+                    .Select(m =>
+                    new SelectListItem()
+                    {
+                        Value = m.Id.ToString(),
+                        Text = m.Nome
+                    })
+                    .ToListAsync();
+
+                return View(agendamentoVM);
             }
         }
 
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-                return BadRequest("Id invalido.");
-
-            var agendamento = await _context.Agendamentos
-                .Include(a => a.Municipio)
-                .SingleOrDefaultAsync(a => a.Id == id);
-
-            if (agendamento == null)
-                return NotFound();
-
-            var agendamentoVM = agendamento.ToViewModel();
+            var agendamentoVM = await _service.DetalhesAsync(id);
 
             return View(agendamentoVM);
         }
-
     }
 }
