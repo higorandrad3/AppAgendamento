@@ -12,13 +12,11 @@ namespace AgendamentoApp.Controllers
 {
     public class AgendamentosController : Controller
     {
-        private readonly AppDbContext _context;
         private readonly ILogger<AgendamentosController> _logger;
         private readonly IAgendamentoService _service;
 
         public AgendamentosController(AppDbContext context, ILogger<AgendamentosController> logger, IAgendamentoService service)
         {
-            _context = context;
             _logger = logger;
             _service = service;
         }
@@ -138,14 +136,7 @@ namespace AgendamentoApp.Controllers
 
             var agendamentoVM = agendamento.ToViewModel();
 
-            agendamentoVM.Municipios = await _context.Municipios
-                .Select(m =>
-                new SelectListItem()
-                {
-                    Value = m.Id.ToString(),
-                    Text = m.Nome
-                })
-                .ToListAsync();
+            agendamentoVM.Municipios = await _service.ObterMunicipiosAsync();
 
             return View(agendamentoVM);
 
